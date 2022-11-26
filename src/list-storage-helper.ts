@@ -7,7 +7,7 @@ interface ListStorageHelperParams extends StorageHelperParams {
   unshiftWhenAdded: boolean
 }
 
-export default class ListStorageHelper<T> extends StorageHelper<T[]> {
+export class ListStorageHelper<T> extends StorageHelper<T[]> {
   readonly maxCount: number = 10
   readonly key: string = 'id'
   readonly moveTopWhenModified: boolean = false

@@ -25,3 +25,41 @@ export const EMPTY_STORE: DataStore<null> = {
   version: 0,
   data: null
 }
+
+export interface CreateDeferredPromiseResult<T> {
+  currentPromise: Promise<T>
+  resolve: (value: T | PromiseLike<T>) => void
+  reject: (reason?: any) => void
+}
+
+
+type CreateDeferredPromise = <TValue>() => CreateDeferredPromiseResult<TValue>
+
+export const createDeferredPromise: CreateDeferredPromise = <T>() => {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  let reject!: (reason?: any) => void
+
+  const promise = new Promise<T>((res, rej) => {
+      resolve = res
+      reject = rej
+  })
+
+  return {
+      currentPromise: promise,
+      resolve,
+      reject
+  }
+}
+
+
+const isObject = (value: any) => value !== null &&
+	(typeof value === 'object' || typeof value === 'function');
+
+export default function isPromise(value: any): value is Promise<string> {
+	return value instanceof Promise ||
+		(
+			isObject(value) &&
+			typeof value.then === 'function' &&
+			typeof value.catch === 'function'
+		);
+}
