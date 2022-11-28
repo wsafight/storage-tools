@@ -13,3 +13,8 @@ export {
 export {
   MemoryAdaptor
 } from './adaptor/memory'
+
+
+export {
+  IndexedDBAdaptor
+} from './adaptor/indexed-DB'
