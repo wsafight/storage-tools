@@ -1,6 +1,6 @@
 export const invariant = (condition: boolean, errorMsg: string) => {
   if (condition) {
-    throw new Error(errorMsg);
+    throw new Error(errorMsg)
   }
 }
 
@@ -19,12 +19,15 @@ export interface DataStore<T> {
   [key: string]: any
 }
 
-export const EMPTY_STORE: DataStore<null> = {
-  createdOn: 0,
-  modifiedOn: 0,
-  version: 0,
-  data: null
+export const getEmptyDataStore = (): DataStore<any> => {
+  return {
+    createdOn: 0,
+    modifiedOn: 0,
+    version: 0,
+    data: null
+  }
 }
+
 
 export interface CreateDeferredPromiseResult<T> {
   currentPromise: Promise<T>
@@ -53,13 +56,13 @@ export const createDeferredPromise: CreateDeferredPromise = <T>() => {
 
 
 const isObject = (value: any) => value !== null &&
-	(typeof value === 'object' || typeof value === 'function');
+	(typeof value === 'object' || typeof value === 'function')
 
-export default function isPromise(value: any): value is Promise<string> {
-	return value instanceof Promise ||
+export const isPromise = (val: any): val is Promise<string> => {
+	return val instanceof Promise ||
 		(
-			isObject(value) &&
-			typeof value.then === 'function' &&
-			typeof value.catch === 'function'
-		);
+			isObject(val) &&
+			typeof val.then === 'function' &&
+			typeof val.catch === 'function'
+		)
 }

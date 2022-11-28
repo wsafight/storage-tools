@@ -66,30 +66,27 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     const index = items.findIndex((x: any) => x[this.key] === (item as any)[this.key])
 
     if (index > -1) {
+      const current = { ...items[index], ...item }
       if (this.moveTopWhenModified) {
         items.splice(index, 1)
-        items.unshift(item)
+        items.unshift(current)
       } else {
-        items[index] = { ...items[index], ...item }
+        items[index] = current
       }
     } else {
-      if (this.unshiftWhenAdded) {
-        items.unshift(item)
-      } else {
-        items.push(item)
-      }
+      this.unshiftWhenAdded ? items.unshift(item) : items.push(item)
     }
     this.checkThenRemoveItem(items)
     
     return this
   }
 
-  removeItem (itemKey: string) {
+  removeItem (key: string | number) {
     if (!this.store) {
       throw new Error('Please complete the loading load first')
     }
     const items = this.getData()
-    const index = items.findIndex((x: any) => x[this.key] === itemKey)
+    const index = items.findIndex((x: any) => x[this.key] === key)
     if (index > -1) {
       items.splice(index, 1)
     }

@@ -1,4 +1,12 @@
-import isPromise, { createDeferredPromise, CreateDeferredPromiseResult, DataStore, EMPTY_STORE, getCurrentSecond, StorageAdaptor } from "./utils"
+import {
+  isPromise,
+  createDeferredPromise,
+  CreateDeferredPromiseResult, 
+  DataStore, 
+  getCurrentSecond, 
+  getEmptyDataStore, 
+  StorageAdaptor 
+} from "./utils"
 
 export interface StorageHelperParams {
   storageKey: string
@@ -8,13 +16,12 @@ export interface StorageHelperParams {
 }
 
 export class StorageHelper<T> {
-  private storageKey: string
-  private version: number
-  private timeout: number = -1
+  private readonly storageKey: string
+  private readonly version: number
+  private readonly timeout: number = -1
+  readonly storage: StorageAdaptor = localStorage
 
   store: DataStore<T> | null = null
-
-  readonly storage: StorageAdaptor = localStorage
 
   ready: CreateDeferredPromiseResult<boolean> = createDeferredPromise<boolean>()
   
@@ -58,11 +65,23 @@ export class StorageHelper<T> {
   }
 
   initStore (storeStr: string | null) {
-    let store = storeStr ? JSON.parse(storeStr) : {}
-    if (storeStr && store.version !== this.version) {
+    const emptyStore = getEmptyDataStore()
+    if (!storeStr) {
+      this.store = emptyStore
+      return
+    }
+    let store: DataStore<T> | null = emptyStore
+
+    try {
+      store = JSON.parse(storeStr)
+    } catch (_e) {
+      store = emptyStore
+    }
+
+    if (store && store.version !== this.version) {
       store = this.upgrade()
     }
-    this.store = store || {...EMPTY_STORE}
+    this.store = store || emptyStore
   }
 
   whenReady () {
@@ -92,7 +111,7 @@ export class StorageHelper<T> {
   }
 
   commit () {
-    const store = this.store || EMPTY_STORE
+    const store = this.store || getEmptyDataStore()
     store.version = this.version
     const now = getCurrentSecond()
     if (!store.createdOn) {
