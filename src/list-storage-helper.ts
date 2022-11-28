@@ -7,6 +7,8 @@ interface ListStorageHelperParams extends StorageHelperParams {
   unshiftWhenAdded: boolean
 }
 
+const STORE_MAX_COUNT: number = 10
+
 export class ListStorageHelper<T> extends StorageHelper<T[]> {
   readonly maxCount: number = 10
   readonly key: string = 'id'
@@ -24,7 +26,7 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     timeout
   }: ListStorageHelperParams) {
     super({ storageKey, version, storage, timeout })
-    this.maxCount = maxCount || 10
+    this.maxCount = maxCount || STORE_MAX_COUNT
     this.key = key
     this.moveTopWhenModified = moveTopWhenModified
     this.unshiftWhenAdded = unshiftWhenAdded
@@ -48,9 +50,10 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
   }
 
   checkThenRemoveItem = (items: T[]) => {
-    if(items.length > this.maxCount) {
-      items.splice(this.maxCount, items.length - this.maxCount)
+    if(items.length <= this.maxCount) {
+      return;
     }
+    items.splice(this.maxCount, items.length - this.maxCount)
   }
 
   setItem (item: T) {
