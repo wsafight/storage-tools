@@ -34,6 +34,7 @@ export class StorageHelper<T> {
     this.storageKey = storageKey
     this.version = version
 
+
     if (storage && 'getItem' in storage && 'setItem' in storage) {
       this.storage = storage
     }
