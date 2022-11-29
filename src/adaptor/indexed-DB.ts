@@ -23,6 +23,7 @@ export class IndexedDBAdaptor implements StorageAdaptor {
     IDBIndexList = []
   }: IndexedDBAdaptorParams) {
     this.storeName = storeName
+    
     const request = indexedDB.open(dbName)
     const { result } = request
 
@@ -40,12 +41,13 @@ export class IndexedDBAdaptor implements StorageAdaptor {
 
 
   getItem(key: string): string {
-    const value = this.db.transaction(this.storeName).objectStore(this.storeName).get(key)
+    const value = this.db.transaction(this.storeName, 'readonly').objectStore(this.storeName).get(key)
     return value.result?.data || ''
   }
 
   setItem(key: string, value: string) {
-    console.log(key)
-    console.log(value)
+    this.db.
+      transaction(this.storeName, 'readwrite')
+      .objectStore(this.storeName).add(value, key)
   }
 }
