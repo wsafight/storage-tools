@@ -1,17 +1,18 @@
 import {
   isPromise,
   createDeferredPromise,
-  CreateDeferredPromiseResult, 
-  DataStore, 
-  getCurrentSecond, 
-  getEmptyDataStore, 
-  StorageAdaptor 
+  CreateDeferredPromiseResult,
+  DataStore,
+  getCurrentSecond,
+  getEmptyDataStore,
+  StorageAdaptor,
+  DataStoreInfo
 } from "./utils"
 
 export interface StorageHelperParams {
   storageKey: string
   version: number
-  storage?: StorageAdaptor
+  adapter?: StorageAdaptor
   timeout?: number
 }
 
@@ -19,39 +20,47 @@ export class StorageHelper<T> {
   private readonly storageKey: string
   private readonly version: number
   private readonly timeout: number = -1
-  readonly storage: StorageAdaptor = localStorage
+  readonly adapter: StorageAdaptor = localStorage
+  readonly fields: string[] = []
 
   store: DataStore<T> | null = null
 
   ready: CreateDeferredPromiseResult<boolean> = createDeferredPromise<boolean>()
-  
+
   constructor({
-    storageKey, 
-    version, 
-    storage, 
+    storageKey,
+    version,
+    adapter,
     timeout,
   }: StorageHelperParams) {
     this.storageKey = storageKey
     this.version = version
 
 
-    if (storage && 'getItem' in storage && 'setItem' in storage) {
-      this.storage = storage
+    if (adapter && 'getItem' in adapter && 'setItem' in adapter) {
+      this.adapter = adapter
     }
 
     if (typeof timeout === 'number' && timeout > 0) {
       this.timeout = timeout
     }
+
+    this.load()
   }
 
 
-  load (forceLoad?: boolean) {
-    if (!forceLoad && this.store) {
-      return this
+  load({
+    refresh = false
+  }: {
+    refresh: boolean
+  } = { refresh: false }) {
+    if (!refresh && this.store) {
+      return
     }
-    const result: Promise<string> | string | null= this.storage.getItem(this.storageKey)
+    const result: Promise<string> | string | null = this.adapter.getItem(this.storageKey)
+    
     if (isPromise(result)) {
-      result.then(res => { 
+      result.then(res => {
         this.initStore(res)
         this.ready.resolve(true)
       }).catch(() => {
@@ -62,10 +71,9 @@ export class StorageHelper<T> {
       this.initStore(result)
       this.ready.resolve(true)
     }
-    return this
   }
 
-  initStore (storeStr: string | null) {
+  private initStore(storeStr: string | null) {
     const emptyStore = getEmptyDataStore()
     if (!storeStr) {
       this.store = emptyStore
@@ -80,28 +88,26 @@ export class StorageHelper<T> {
     }
 
     if (store && store.version !== this.version) {
-      store = this.upgrade()
+      store = this.upgrade(store)
     }
     this.store = store || emptyStore
   }
 
-  whenReady () {
+  whenReady() {
     return this.ready
   }
 
-  ensureLoad() {
-    this.load()
-    return this
-  }
-
   setData(data: T) {
-    if (this.store) {
-      this.store.data = data
+    if (!this.store) {
+      return
     }
-    return this
+    this.store.data = data
   }
 
-  getData () {
+  getData(): T | null {
+    if (!this.store) {
+      return null
+    }
     if (this.timeout < 0) {
       return this.store?.data
     }
@@ -111,7 +117,7 @@ export class StorageHelper<T> {
     return null
   }
 
-  commit () {
+  commit() {
     const store = this.store || getEmptyDataStore()
     store.version = this.version
     const now = getCurrentSecond()
@@ -119,16 +125,20 @@ export class StorageHelper<T> {
       store.createdOn = now
     }
     store.modifiedOn = now
-    this.storage.setItem(this.storageKey, JSON.stringify(store))
-    return this
+    this.adapter.setItem(this.storageKey, JSON.stringify(store))
   }
 
-  get (key: string) {
+  get(key: DataStoreInfo) {
     return this.store?.[key]
   }
 
-  upgrade () {
-    return null
+  upgrade(store: DataStore<T>): DataStore<T> {
+    return {
+      version: this.version,
+      data: null,
+      createdOn: store.createdOn,
+      modifiedOn: getCurrentSecond()
+    }
   }
 
 }

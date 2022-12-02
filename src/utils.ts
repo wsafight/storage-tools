@@ -11,13 +11,17 @@ export interface StorageAdaptor {
   setItem: (key: string, value: string) => void
 }
 
+export type DataStoreInfo = 'version' | 'createdOn' | 'modifiedOn'
+
 export interface DataStore<T> {
-  data: T
+  data: T | null
   version: number
   createdOn: number
   modifiedOn: number
   [key: string]: any
 }
+
+
 
 export const getEmptyDataStore = (): DataStore<any> => {
   return {

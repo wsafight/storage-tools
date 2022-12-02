@@ -10,30 +10,35 @@ interface ListStorageHelperParams extends StorageHelperParams {
 const STORE_MAX_COUNT: number = 10
 
 export class ListStorageHelper<T> extends StorageHelper<T[]> {
-  readonly maxCount: number = 10
   readonly key: string = 'id'
-  readonly moveTopWhenModified: boolean = false
-  readonly unshiftWhenAdded: boolean = false
+  readonly maxCount: number = STORE_MAX_COUNT
 
-  constructor ({
-    maxCount, 
-    key, 
-    moveTopWhenModified = false, 
+  readonly unshiftWhenAdded: boolean = false
+  readonly moveTopWhenModified: boolean = false
+
+  constructor({
+    maxCount,
+    key,
+    moveTopWhenModified = false,
     unshiftWhenAdded = false,
-    storageKey, 
+    storageKey,
     version,
-    storage,
+    adapter,
     timeout
   }: ListStorageHelperParams) {
-    super({ storageKey, version, storage, timeout })
+    super({ storageKey, version, adapter, timeout })
     this.maxCount = maxCount || STORE_MAX_COUNT
     this.key = key
     this.moveTopWhenModified = moveTopWhenModified
     this.unshiftWhenAdded = unshiftWhenAdded
   }
 
-  load (forceLoad: boolean) {
-    super.load(forceLoad)
+  load({
+    refresh = false
+  }: {
+    refresh: boolean
+  } = { refresh: false }) {
+    super.load({ refresh })
     if (!this.store!.data) {
       this.store!.data = []
     }
@@ -41,22 +46,12 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     return this
   }
 
-  getData = () => {
+  getData = (): T[] => {
     let items = super.getData()
-    if (!items) {
-      items = []
-    }
-    return items
+    return items || []
   }
 
-  checkThenRemoveItem = (items: T[]) => {
-    if(items.length <= this.maxCount) {
-      return;
-    }
-    items.splice(this.maxCount, items.length - this.maxCount)
-  }
-
-  setItem (item: T) {
+  setItem(item: T) {
     if (!this.store) {
       throw new Error('Please complete the loading load first')
     }
@@ -77,11 +72,11 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
       this.unshiftWhenAdded ? items.unshift(item) : items.push(item)
     }
     this.checkThenRemoveItem(items)
-    
+
     return this
   }
 
-  removeItem (key: string | number) {
+  removeItem(key: string | number) {
     if (!this.store) {
       throw new Error('Please complete the loading load first')
     }
@@ -95,15 +90,23 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
 
   setItems(items: T[]) {
     if (!this.store) {
-      throw new Error('Please complete the loading load first')
+      return
     }
     this.store.data = items || []
   }
 
   getItems() {
     if (!this.store) {
-      throw new Error('Please complete the loading load first')
+      return null
     }
     return this.getData()
   }
+
+  private checkThenRemoveItem = (items: T[]) => {
+    if (items.length <= this.maxCount) {
+      return;
+    }
+    items.splice(this.maxCount, items.length - this.maxCount)
+  }
+
 }
