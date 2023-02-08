@@ -1,53 +1,77 @@
-import { StorageAdaptor } from "../utils"
+import { StorageAdaptor } from '../utils'
 
-interface IndexedDBAdaptorParams {
-  dbName: string
-  storeName: string
-  IDBOptions: IDBObjectStoreParameters
-  IDBIndexList: {
+interface IndexedDBUpgradeInfo {
+  options?: IDBObjectStoreParameters
+  indexList?: {
     name: string
     keyPath: string | string[]
     options?: IDBIndexParameters
   }[]
 }
 
-export class IndexedDBAdaptor implements StorageAdaptor {
+interface IndexedDBAdaptorParams {
+  dbName: string
+  storeName: string
+  upgradeInfo?: IndexedDBUpgradeInfo
+}
 
-  readonly db: IDBDatabase
-  readonly storeName: string
+function promisifyRequest<T = undefined>(
+  request: IDBRequest<T> | IDBTransaction
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    // @ts-ignore
+    request.oncomplete = request.onsuccess = () => resolve(request.result)
+    // @ts-ignore
+    request.onabort = request.onerror = () => reject(request.error)
+  })
+}
 
-  constructor({
-    dbName,
-    storeName,
-    IDBOptions = {},
-    IDBIndexList = []
-  }: IndexedDBAdaptorParams) {
-    this.storeName = storeName
-    
-    const request = indexedDB.open(dbName)
-    const { result } = request
+type UseStore = <T>(
+  txMode: IDBTransactionMode,
+  callback: (store: IDBObjectStore) => T | PromiseLike<T>
+) => Promise<T>
 
-    this.db = result
+const createStore = (
+  dbName: string,
+  storeName: string,
+  upgradeInfo: IndexedDBUpgradeInfo = {}
+): UseStore => {
+  const request = indexedDB.open(dbName)
 
-    request.onupgradeneeded = () => {
-      if (!result.objectStoreNames.contains(storeName)) {
-        const store = result.createObjectStore(storeName, { ...IDBOptions })
-        IDBIndexList.forEach(index => {
-          store.createIndex(index.name, index.keyPath, index.options)
-        })
-      }
+  request.onupgradeneeded = () => {
+    const { result: store } = request
+    if (!store.objectStoreNames.contains(storeName)) {
+      const { options = {}, indexList = [] } = upgradeInfo
+      const store = request.result.createObjectStore(storeName, { ...options })
+      indexList.forEach((index) => {
+        store.createIndex(index.name, index.keyPath, index.options)
+      })
     }
   }
 
+  const dbp = promisifyRequest(request)
 
-  getItem(key: string): string {
-    const value = this.db.transaction(this.storeName, 'readonly').objectStore(this.storeName).get(key)
-    return value.result?.data || ''
+  return (txMode, callback) =>
+    dbp.then((db) =>
+      callback(db.transaction(storeName, txMode).objectStore(storeName))
+    )
+}
+
+export class IndexedDBAdaptor implements StorageAdaptor {
+  private readonly store: UseStore
+
+  constructor({ dbName, storeName, upgradeInfo }: IndexedDBAdaptorParams) {
+    this.store = createStore(dbName, storeName, upgradeInfo)
+  }
+
+  getItem(key: string): Promise<string> {
+    return this.store('readonly', (store) => promisifyRequest(store.get(key)))
   }
 
   setItem(key: string, value: string) {
-    this.db.
-      transaction(this.storeName, 'readwrite')
-      .objectStore(this.storeName).add(value, key)
+    return this.store('readwrite', (store) => {
+      store.put(value, key)
+      return promisifyRequest(store.transaction)
+    })
   }
 }
