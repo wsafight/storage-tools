@@ -24,7 +24,7 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     storageKey,
     version,
     adapter,
-    timeout
+    timeout,
   }: ListStorageHelperParams) {
     super({ storageKey, version, adapter, timeout })
     this.maxCount = maxCount || STORE_MAX_COUNT
@@ -33,11 +33,13 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     this.unshiftWhenAdded = unshiftWhenAdded
   }
 
-  load({
-    refresh = false
-  }: {
-    refresh: boolean
-  } = { refresh: false }) {
+  load(
+    {
+      refresh = false,
+    }: {
+      refresh: boolean
+    } = { refresh: false }
+  ) {
     super.load({ refresh })
     if (!this.store!.data) {
       this.store!.data = []
@@ -58,7 +60,9 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
 
     const items = this.getData()
 
-    const index = items.findIndex((x: any) => x[this.key] === (item as any)[this.key])
+    const index = items.findIndex(
+      (x: any) => x[this.key] === (item as any)[this.key]
+    )
 
     if (index > -1) {
       const current = { ...items[index], ...item }
@@ -104,9 +108,8 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
 
   private checkThenRemoveItem = (items: T[]) => {
     if (items.length <= this.maxCount) {
-      return;
+      return
     }
     items.splice(this.maxCount, items.length - this.maxCount)
   }
-
 }
