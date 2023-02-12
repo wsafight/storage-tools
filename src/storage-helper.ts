@@ -21,7 +21,7 @@ export class StorageHelper<T> {
   private readonly version: number
   private readonly timeout: number = -1
 
-  readonly adapter: StorageAdaptor;
+  readonly adapter: StorageAdaptor
 
   store: DataStore<T> | null = null
 
@@ -30,8 +30,11 @@ export class StorageHelper<T> {
   constructor({ storageKey, version, adapter, timeout }: StorageHelperParams) {
     this.storageKey = storageKey
     this.version = version || 1
-    this.adapter = (adapter && 'getItem' in adapter && 'setItem' in adapter) ? adapter : localStorage
-  
+    this.adapter =
+      adapter && 'getItem' in adapter && 'setItem' in adapter
+        ? adapter
+        : localStorage
+
     if (typeof timeout === 'number' && timeout > 0) {
       this.timeout = timeout
     }
