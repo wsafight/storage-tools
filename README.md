@@ -83,7 +83,10 @@ const store = new StorageHelper({
   version: 1,
   // 超时，单位为 秒
   timeout: 60 * 60 * 24,
-  adapter: IndexedDBAdaptor
+  adapter: new IndexedDBAdaptor({
+    dbName: 'db',
+    storeName: 'test'
+  })
 })
 
 // IndexedDB 只能异步获取，所以现在只能等待获取构建获取完成
@@ -159,7 +162,10 @@ const store = new StorageHelper({
   storageKey: `utils.addressList.${userId}`,
   // 当前版本，可以后端传入
   version: 1,
-  adaptor: IndexedDBAdaptor,
+  adaptor: new IndexedDBAdaptor({
+    dbName: 'db',
+    storeName: 'test'
+  }),
   key: 'searchVal'
 })
 

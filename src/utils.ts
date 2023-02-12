@@ -4,7 +4,7 @@ export const invariant = (condition: boolean, errorMsg: string) => {
   }
 }
 
-export const getCurrentSecond = () => new Date().getTime() / 1000
+export const getCurrentSecond = () => parseInt(`${new Date().getTime() / 1000}`) 
 
 export interface StorageAdaptor {
   getItem: (key: string) => string | Promise<string> | null
@@ -21,11 +21,12 @@ export interface DataStore<T> {
   [key: string]: any
 }
 
-export const getEmptyDataStore = (): DataStore<any> => {
+export const getEmptyDataStore = (version: number): DataStore<any> => {
+  const currentSecond = getCurrentSecond()
   return {
-    createdOn: 0,
-    modifiedOn: 0,
-    version: 0,
+    createdOn: currentSecond,
+    modifiedOn: currentSecond,
+    version,
     data: null,
   }
 }

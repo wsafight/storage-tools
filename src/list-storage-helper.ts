@@ -49,13 +49,13 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     if (!this.store!.data) {
       this.store!.data = []
     }
-    this.checkThenRemoveItem(this.store!.data)
     return this
   }
 
   getData = (): T[] => {
-    let items = super.getData()
-    return items || []
+    const items = super.getData() || []
+    this.checkThenRemoveItem(items)
+    return items
   }
 
   setItem(item: T) {
@@ -112,7 +112,7 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     return this.getData()
   }
 
-  private checkThenRemoveItem = (items: T[]) => {
+  checkThenRemoveItem = (items: T[]) => {
     if (items.length <= this.maxCount) {
       return
     }
