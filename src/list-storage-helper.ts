@@ -1,10 +1,10 @@
 import { StorageHelper, StorageHelperParams } from './storage-helper'
 
 interface ListStorageHelperParams extends StorageHelperParams {
-  key: string
-  maxCount: number
-  moveTopWhenModified: boolean
-  unshiftWhenAdded: boolean
+  key?: string
+  maxCount?: number
+  moveTopWhenModified?: boolean
+  unshiftWhenAdded?: boolean
 }
 
 const STORE_MAX_COUNT: number = 10
@@ -19,8 +19,8 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
   constructor({
     maxCount,
     key,
-    moveTopWhenModified = false,
-    unshiftWhenAdded = false,
+    moveTopWhenModified = true,
+    unshiftWhenAdded = true,
     storageKey,
     version,
     adapter,
@@ -28,9 +28,14 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
   }: ListStorageHelperParams) {
     super({ storageKey, version, adapter, timeout })
     this.maxCount = maxCount || STORE_MAX_COUNT
-    this.key = key
-    this.moveTopWhenModified = moveTopWhenModified
-    this.unshiftWhenAdded = unshiftWhenAdded
+    this.key = key || 'id'
+    if (typeof moveTopWhenModified === 'boolean') {
+      this.moveTopWhenModified = moveTopWhenModified
+    }
+
+    if (typeof this.unshiftWhenAdded === 'boolean') {
+      this.unshiftWhenAdded = unshiftWhenAdded
+    }
   }
 
   load(
@@ -96,6 +101,7 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     if (!this.store) {
       return
     }
+    this.checkThenRemoveItem(items)
     this.store.data = items || []
   }
 

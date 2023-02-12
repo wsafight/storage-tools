@@ -11,7 +11,7 @@ import {
 
 export interface StorageHelperParams {
   storageKey: string
-  version: number
+  version?: number
   adapter?: StorageAdaptor
   timeout?: number
 }
@@ -29,7 +29,7 @@ export class StorageHelper<T> {
 
   constructor({ storageKey, version, adapter, timeout }: StorageHelperParams) {
     this.storageKey = storageKey
-    this.version = version
+    this.version = version || 1
 
     if (adapter && 'getItem' in adapter && 'setItem' in adapter) {
       this.adapter = adapter
