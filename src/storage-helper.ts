@@ -83,14 +83,14 @@ export class StorageHelper<T> {
 
     try {
       store = JSON.parse(storeStr)
+
+      if (!store || !('data' in store)) {
+        store = getEmptyDataStore(this.version)
+      } else if (store.version !== this.version) {
+        store = this.upgrade(store)
+      }
     } catch (_e) {
       store = getEmptyDataStore(this.version)
-    }
-
-    if (!store || !('data' in store)) {
-      store = getEmptyDataStore(this.version)
-    } else if (store.version !== this.version) {
-      store = this.upgrade(store)
     }
 
     this.store = store || getEmptyDataStore(this.version)

@@ -27,8 +27,12 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     timeout,
   }: ListStorageHelperParams) {
     super({ storageKey, version, adapter, timeout })
-    this.maxCount = maxCount || STORE_MAX_COUNT
     this.key = key || 'id'
+
+    if (typeof maxCount === 'number' && maxCount > 0) {
+      this.maxCount = maxCount
+    }
+
     if (typeof isMoveTopWhenModified === 'boolean') {
       this.isMoveTopWhenModified = isMoveTopWhenModified
     }
