@@ -138,12 +138,12 @@ export class StorageHelper<T> {
   }
 
   upgrade(store: DataStore<T>): DataStore<T> {
-    const currentSecond = getCurrentSecond()
+    const now = getCurrentSecond()
     return {
       version: this.version,
       data: null,
-      createdOn: store.createdOn || currentSecond,
-      modifiedOn: currentSecond,
+      createdOn: store.createdOn || now,
+      modifiedOn: now,
     }
   }
 }

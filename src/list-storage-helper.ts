@@ -13,8 +13,8 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
   readonly key: string = 'id'
   readonly maxCount: number = STORE_MAX_COUNT
 
-  readonly isUnshiftWhenAdded: boolean = false
-  readonly isMoveTopWhenModified: boolean = false
+  readonly isUnshiftWhenAdded: boolean = true
+  readonly isMoveTopWhenModified: boolean = true
 
   constructor({
     maxCount,
