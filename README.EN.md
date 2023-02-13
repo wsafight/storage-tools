@@ -176,5 +176,6 @@ store.setItem({ searchVal: "new game" });
 ```
 
 ## Changelog
-
+- 0.0.6 Add return value of submit method
+- 0.0.5 fix exception check method whenReady
 - 0.0.3 Basically available, supporting StorageHelper and ListStorageHelper

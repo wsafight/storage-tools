@@ -130,7 +130,7 @@ export class StorageHelper<T> {
     }
     store.modifiedOn = now
 
-    this.adapter.setItem(this.storageKey, JSON.stringify(store))
+    return this.adapter.setItem(this.storageKey, JSON.stringify(store))
   }
 
   get(key: DataStoreInfo) {

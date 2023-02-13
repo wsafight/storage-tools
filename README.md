@@ -179,5 +179,6 @@ store.setItem({ searchVal: "new game" });
 ```
 
 ## 升级日志
-
+- 0.0.6 添加 commit 方法返回值
+- 0.0.5 修复异步检查方法 whenReady
 - 0.0.3 基本可用，支持 StorageHelper 以及 ListStorageHelper
