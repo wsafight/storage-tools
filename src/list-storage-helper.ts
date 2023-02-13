@@ -81,8 +81,6 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
       this.isUnshiftWhenAdded ? items.unshift(item) : items.push(item)
     }
     this.checkThenRemoveItem(items)
-
-    return this
   }
 
   removeItem(key: string | number) {
@@ -94,7 +92,6 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     if (index > -1) {
       items.splice(index, 1)
     }
-    return this
   }
 
   setItems(items: T[]) {
