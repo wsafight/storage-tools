@@ -74,28 +74,30 @@ export class StorageHelper<T> {
   }
 
   private initStore(storeStr: string | null) {
-    const emptyStore = getEmptyDataStore(this.version)
     if (!storeStr) {
-      this.store = emptyStore
+      this.store = getEmptyDataStore(this.version)
       return
     }
 
-    let store: DataStore<T> | null = emptyStore
+    let store: DataStore<T> | null = null
 
     try {
       store = JSON.parse(storeStr)
     } catch (_e) {
-      store = emptyStore
+      store = getEmptyDataStore(this.version)
     }
 
-    if (store && store.version !== this.version) {
+    if (!store || !('data' in store)) {
+      store = getEmptyDataStore(this.version)
+    } else if (store.version !== this.version) {
       store = this.upgrade(store)
     }
-    this.store = store || emptyStore
+
+    this.store = store || getEmptyDataStore(this.version)
   }
 
   whenReady() {
-    return this.ready
+    return this.ready.currentPromise
   }
 
   setData(data: T) {
@@ -136,11 +138,12 @@ export class StorageHelper<T> {
   }
 
   upgrade(store: DataStore<T>): DataStore<T> {
+    const currentSecond = getCurrentSecond()
     return {
       version: this.version,
       data: null,
-      createdOn: store.createdOn,
-      modifiedOn: getCurrentSecond(),
+      createdOn: store.createdOn || currentSecond,
+      modifiedOn: currentSecond,
     }
   }
 }
