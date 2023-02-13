@@ -8,7 +8,7 @@ Read this in other languages:
 
 基于实际业务的存储工具库
 
-开发历程可以参考博客 [手写一个存储工具库](https://github.com/wsafight/personBlog/issues/55)
+开发历程可以参考博客 [手写一个前端存储工具库](https://github.com/wsafight/personBlog/issues/55)
 
 ## 特性
 
