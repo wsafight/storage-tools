@@ -3,8 +3,8 @@ import { StorageHelper, StorageHelperParams } from './storage-helper'
 interface ListStorageHelperParams extends StorageHelperParams {
   key?: string
   maxCount?: number
-  moveTopWhenModified?: boolean
-  unshiftWhenAdded?: boolean
+  isMoveTopWhenModified?: boolean
+  isUnshiftWhenAdded?: boolean
 }
 
 const STORE_MAX_COUNT: number = 10
@@ -13,14 +13,14 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
   readonly key: string = 'id'
   readonly maxCount: number = STORE_MAX_COUNT
 
-  readonly unshiftWhenAdded: boolean = false
-  readonly moveTopWhenModified: boolean = false
+  readonly isUnshiftWhenAdded: boolean = false
+  readonly isMoveTopWhenModified: boolean = false
 
   constructor({
     maxCount,
     key,
-    moveTopWhenModified = true,
-    unshiftWhenAdded = true,
+    isMoveTopWhenModified = true,
+    isUnshiftWhenAdded = true,
     storageKey,
     version,
     adapter,
@@ -29,12 +29,12 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
     super({ storageKey, version, adapter, timeout })
     this.maxCount = maxCount || STORE_MAX_COUNT
     this.key = key || 'id'
-    if (typeof moveTopWhenModified === 'boolean') {
-      this.moveTopWhenModified = moveTopWhenModified
+    if (typeof isMoveTopWhenModified === 'boolean') {
+      this.isMoveTopWhenModified = isMoveTopWhenModified
     }
 
-    if (typeof this.unshiftWhenAdded === 'boolean') {
-      this.unshiftWhenAdded = unshiftWhenAdded
+    if (typeof this.isUnshiftWhenAdded === 'boolean') {
+      this.isUnshiftWhenAdded = isUnshiftWhenAdded
     }
   }
 
@@ -71,14 +71,14 @@ export class ListStorageHelper<T> extends StorageHelper<T[]> {
 
     if (index > -1) {
       const current = { ...items[index], ...item }
-      if (this.moveTopWhenModified) {
+      if (this.isMoveTopWhenModified) {
         items.splice(index, 1)
         items.unshift(current)
       } else {
         items[index] = current
       }
     } else {
-      this.unshiftWhenAdded ? items.unshift(item) : items.push(item)
+      this.isUnshiftWhenAdded ? items.unshift(item) : items.push(item)
     }
     this.checkThenRemoveItem(items)
 
