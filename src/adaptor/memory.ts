@@ -1,13 +1,13 @@
-import { StorageAdaptor } from '../utils'
+import { StorageAdaptor } from '../utils';
 
 export class MemoryAdaptor implements StorageAdaptor {
-  readonly cache = new Map()
+  readonly cache: Map<any, any> = new Map();
 
   getItem(key: string) {
-    return this.cache.get(key)
+    return this.cache.get(key);
   }
 
   setItem(key: string, value: string) {
-    this.cache.set(key, value)
+    this.cache.set(key, value);
   }
 }

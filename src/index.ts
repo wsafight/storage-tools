@@ -1,9 +1,9 @@
-export { StorageHelper } from './storage-helper'
+export { StorageHelper } from './storage-helper';
 
-export { ListStorageHelper } from './list-storage-helper'
+export { ListStorageHelper } from './list-storage-helper';
 
-export { StorageAdaptor } from './utils'
+export { MemoryAdaptor } from './adaptor/memory';
 
-export { MemoryAdaptor } from './adaptor/memory'
+export { IndexedDBAdaptor } from './adaptor/indexed-db';
 
-export { IndexedDBAdaptor } from './adaptor/indexed-db'
+export { type StorageAdaptor } from './utils';

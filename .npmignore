@@ -23,26 +23,15 @@ node_modules/
 .eslintcache
 .sonarlint
 
-dist/
 coverage/
 release/
 output/
 output_resource/
-log/
+tests/
 
 .vscode/**/*
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
 
-**/*/typings/auto-generated
-
-.changeset/pre.json
-
-.pnpm-store/
-
-modern.config.local.ts
-modern.config.local.js
-modern.config.local.mjs
-
-doc_build/
+**/*/api/typings/auto-generated
